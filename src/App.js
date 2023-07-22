@@ -152,7 +152,7 @@ function App() {
         <ul>
           <li>
             <button onClick={handleOnSetLocation}>
-              Muestreo de microplásticos en Argentina
+              Mapa 2: Cada uno de los muestreos
             </button>
           </li>
           {/**
