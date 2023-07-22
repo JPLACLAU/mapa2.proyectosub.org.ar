@@ -1,2 +1,9 @@
-# mapa2.proyectosub.org.ar
-Mapa 2:  Cada muestreo realizado de microplásticos en costas de Argentina. Proyecto Sub Foundation.
+# 📓 Mapa 2: Cada muestreo - ProyectoSub
+
+## Objectivos
+
+- Señalizar cada uno de los distintos muestreos dónde se han realizado muestreos para microplásticos costeros
+
+## Version
+
+v0.1
