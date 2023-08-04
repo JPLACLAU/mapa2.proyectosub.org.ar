@@ -1,8 +1,10 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import { Map, TileLayer } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "./assets/stylesheets/App.css";
+import "leaflet-sidebar/src/L.Control.Sidebar.css";
+import "leaflet-sidebar";
 
 import Layout from "./components/Layout";
 
@@ -16,6 +18,8 @@ const MAPBOX_STYLEID = process.env.REACT_APP_MAPBOX_STYLEID;
 
 function App() {
   const mapRef = useRef();
+  const [selectedPlace, setSelectedPlace] = useState(null);
+  const [selectedData, setSelectedData] = useState(null);
 
   useEffect(() => {
     delete L.Icon.Default.prototype._getIconUrl;
@@ -32,6 +36,8 @@ function App() {
     const { leafletElement: map } = current;
 
     if (!map) return;
+
+    let sidebar = L.control.sidebar("sidebar").addTo(map);
 
     map.eachLayer((layer = {}) => {
       const { options } = layer;
@@ -86,7 +92,7 @@ function App() {
 
         const html = `
           <div class="restaurant-popup">
-            <h3>${name}</h3> 
+            <h4>${name}</h4> 
             <ul>
               <h5>
               <li>
@@ -95,31 +101,16 @@ function App() {
               <li>
               <strong>Id: </strong>${id} 
               </li>
+              <li>
+              <ul>
+              Latitud: ${latitud}
+                <ul>
+              Longitud: ${longitud}
+            </li>
               </h5>
-              <li>
-                <strong>${
-                  presenciamp ? "HAY MICROPLÁSTICOS" : "No hay microplásticos"
-                } </strong> 
-              </li>
-              <li>
-                <strong>${mpprimarios}</strong> microplásticos primarios
-              </li>
-              <li>
-                <strong>${mpsecundarios}</strong> microplásticos secundarios
-              </li>
-              <li>
-                <strong>${mpmesoplasticos}</strong> mesoplásticos
-              </li>
-              <li>
-               Organizado por <strong>${org}</strong> con <strong>${voluntarios}</strong> voluntarios.
-              </li> 
-              <li>
-              El sitio se caracteriza por ser de <strong>${tipoSitio}</strong>.
-              </li>
               
-              <li>
-                <strong>Coordenadas:</strong> (${latitud}, ${longitud})
-              </li>
+              
+
 
             </ul>
           </div>
@@ -139,6 +130,21 @@ function App() {
           if (deliveryZoneCircle) {
             deliveryZoneCircle.removeFrom(map);
           }
+        });
+        layer.on("click", () => {
+          setSelectedPlace(name);
+          sidebar.toggle();
+
+          setSelectedData({
+            presenciamp,
+            mpprimarios,
+            mpsecundarios,
+            mpmesoplasticos,
+            org,
+            voluntarios,
+            tipoSitio,
+            name,
+          });
         });
       },
     });
@@ -162,6 +168,46 @@ function App() {
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
         />
       </Map>
+      <div id="sidebar">
+        <h3>Datos de Muestreo de Microplásticos en Patagonia</h3>
+        <div className="sidebar-content">
+          {selectedData && (
+            <>
+              <h4>{selectedData.name}</h4>
+              <strong>
+                {selectedData.presenciamp
+                  ? "HAY MICROPLÁSTICOS"
+                  : "No hay microplásticos"}
+              </strong>
+              <li>
+                <strong>{selectedData.mpprimarios}</strong> microplásticos
+                primarios
+              </li>
+              <li>
+                <strong>{selectedData.mpsecundarios}</strong> microplásticos
+                secundarios
+              </li>
+              <li>
+                <strong>{selectedData.mpmesoplasticos}</strong> mesoplásticos
+              </li>
+              <ul />
+              Organizado por <strong>{selectedData.org}</strong> con
+              <strong>{selectedData.voluntarios}</strong> voluntarios.
+              <ul /> El sitio se caracteriza por ser de{" "}
+              <strong>{selectedData.tipoSitio}</strong>.
+            </>
+          )}
+        </div>
+        <div className="sidebar-footer">
+          <h5>Más datos próximamente...</h5>
+        </div>
+      </div>
+      {selectedPlace && (
+        <div className="info-box">
+          <button onClick={() => setSelectedPlace(null)}>Close</button>
+          <h1>{selectedPlace}</h1>
+        </div>
+      )}
     </Layout>
   );
 }
